@@ -21,7 +21,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
-  origin: "https://main--ornate-kelpie-d7bd6c.netlify.app",
+  // https://main--ornate-kelpie-d7bd6c.netlify.app
+  origin: "*",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionsSuccessStatus: 204,
@@ -53,4 +54,4 @@ module.exports = app;
 
 
 
-app.listen(3005)
+app.listen(3006)
