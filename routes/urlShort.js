@@ -40,7 +40,7 @@ router.get("/link", async (req, res) => {
     try {
        
 
-        let urlShort = await UrlModel.find().toArray();
+        let urlShort = await UrlModel.find();
         console.log(urlShort);
      
         if (urlShort) {
