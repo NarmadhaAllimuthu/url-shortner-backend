@@ -1,11 +1,7 @@
-const { MongoClient, ObjectId } = require("mongodb");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv").config();
+const { MongoClient } = require("mongodb");
 const express = require("express");
-const app = express();
 const router = express.Router();
-const URL = process.env.mongodb_url;
+const UrlModel = require("../models/urlShort"); // Import your Mongoose model
 
 function generateUrl() {
     var rndResult = "";
@@ -16,62 +12,44 @@ function generateUrl() {
         rndResult += characters.charAt(
             Math.floor(Math.random() * characterLength)
         )
-
     }
     console.log(rndResult)
     return rndResult;
 }
 
-
 router.post("/create-link", async (req, res) => {
-
-    console.log(req.body);
-    //create short url
-
-    // console.log(generateUrl())
-
-    //store in DB
     try {
-        const connection = await MongoClient.connect(URL);
-        const db = connection.db("URL-Shortner-DB");
+        const { longUrl } = req.body;
+        const shortUrl = generateUrl();
 
-        const urlShort = await db.collection("create-url").insertOne({
-            longUrl: req.body.longUrl,
-            shortUrl: generateUrl()
-
-
+        const newUrl = new UrlModel({
+            longUrl,
+            shortUrl,
         });
-        await connection.close();
-        res.status(200).send("url created")
+
+        const urlcreated = await newUrl.save();
+        console.log(shortUrl)
+        res.status(200).send("URL created");
     } catch (error) {
         console.log("Error :", error);
-        res.status(400).json({ message: "Something went wrong !" });
-
+        res.status(400).json({ message: "Something went wrong!", errorMessage: error });
     }
-
-})
-
+});
 
 router.get("/link", async (req, res) => {
     try {
-        const connection = await MongoClient.connect(URL);
-        const db = connection.db("URL-Shortner-DB");
+       
 
-        let urlShort = await db.collection("create-url").find().toArray();
+        let urlShort = await UrlModel.find().toArray();
         console.log(urlShort);
-        await connection.close();
+     
         if (urlShort) {
-            // console.log(urlShort.longUrl)
-
             res.status(200).json(urlShort);
-
         }
     } catch (error) {
         console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-})
-
+});
 
 module.exports = router;
-
-
